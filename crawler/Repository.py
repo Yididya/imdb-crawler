@@ -1,9 +1,10 @@
 from sqlalchemy import *
+from settings import DATABASE
 
 class Repository:
     def __init__(self, showLog = False):
         self.__showLog = showLog
-        self.__engine = create_engine('mysql+mysqlconnector://root:root@localhost:8889/MovieDB', echo=self.__showLog)
+        self.__engine = create_engine('mysql+mysqlconnector://' + DATABASE['USER'] + ':' + DATABASE['PASSWORD'] + '@localhost:' + DATABASE['PORT'] + '/MovieDB', echo=self.__showLog)
         self.__metadata = MetaData()
 
         self.__persons = Table('Person', self.__metadata,
@@ -72,7 +73,7 @@ class Repository:
 #            values(Name = name)
 #        )
 
-    def savePersonIfDoesnExist(self, name):
+    def savepersonIfDoesntExist(self, name):
         personId = self.getPersonId(name)
 
         if personId == None:
@@ -116,13 +117,12 @@ class Repository:
         for directorName in movie.Directors:
             self.saveDirector(movieId, directorName)
 
-        for actorName, characterName in movie.Actors.items():
-            self.saveActor(movieId, actorName, characterName)
+        for cast in movie.Actors:
+            self.saveActor(movieId, cast['actor'], cast['character'])
 
     # Director methods
     def saveDirector(self, movieId, directorName):
-        personId = self.savePersonIfDoesnExist(directorName)
-
+        personId = self.savepersonIfDoesntExist(directorName)
         result = self.__engine.connect().execute(
             self.__directors.insert()
             .values(Movie_id = movieId, Person_id = personId)
@@ -132,7 +132,7 @@ class Repository:
 
     # Actor methods
     def saveActor(self, movieId, actorName, characterName):
-        personId = self.savePersonIfDoesnExist(actorName)
+        personId = self.savepersonIfDoesntExist(actorName)
 
         result = self.__engine.connect().execute(
             self.__actors.insert()
