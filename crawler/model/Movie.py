@@ -1,4 +1,4 @@
-import time, re, urllib.request
+import time, re, urllib
 from bs4 import BeautifulSoup
 
 class Movie:
@@ -7,56 +7,42 @@ class Movie:
         self.parse(imdbLink)
 
     def parse(self, url):
-        response = urllib.request.urlopen(url)
+        response = urllib.urlopen(url)
         html = response.read()
-        soup = BeautifulSoup(html)
+        soup = BeautifulSoup(html, 'html.parser')
 
         self.Title = soup.title.string[:-14].strip()
         self.Rating = float(soup.find(itemprop="ratingValue").string.strip())
 
-        dates = soup.find_all("span", "nobr")
-        if len(dates) > 1:
-            date = dates[1].a.string.split("(")[0][:-1].strip()
-        else:
-            date = dates[0].a.get_text()
+        dates = soup.find_all(name='meta', attrs={'itemprop': 'datePublished'})
         try:
-            self.ReleaseDate = time.strptime(date, '%d %B %Y')
+            if len(dates):
+                self.ReleaseDate = time.strptime(dates[0]['content'], '%Y-%m-%d')
+            else:
+                self.ReleaseDate = None
         except ValueError:
-            try:
-                self.ReleaseDate = time.strptime(date, '%B %Y')
-            except ValueError:
-                try:
-                    self.ReleaseDate = time.strptime(date, '%Y')
-                except ValueError:
-                    self.ReleaseDate = time.gmtime(0)
-                    pass
+            self.ReleaseDate = None
+
 
         synopsis = soup.find(itemprop="description")
         self.Synopsis = re.sub(' +', ' ', synopsis.get_text().strip())
 
         directors = soup.find_all(itemprop="director")
         self.Directors = []
+
         for director in directors:
-            self.Directors.append(str(director.string))
+            self.Directors.append(unicode(director.find(itemprop='name').string))
 
-        actors = soup.find('table', 'cast_list').find_all("td", "name")
-        characters = soup.find('table', 'cast_list').find_all("td", "character")
 
-        self.Actors = {}
-        for i in range(len(actors)):
-            if characters[i].div != None:
-                characterName = characters[i].div.get_text()
+        actor_cast_pairs = filter(lambda pair: len(pair) > 1,soup.find(attrs={'class':'cast_list'}).find_all('tr'))
+        
+        self.Actors = map(lambda pair: {
+                                        'actor': unicode(pair.find(itemprop='actor').span.string.strip()), 
+                                        'character' : unicode(pair.find(attrs={'class':'character'}).get_text().split('/')[0].strip())
+                                    }, 
+                                    actor_cast_pairs[1:])
+        
 
-                #if characterName == None:
-                #    characterName = characters[i].div.a.string
-
-                self.Actors[str(actors[i].a.string).strip()] = re.sub(' +', ' ', characterName)
-            else:
-                self.Actors[str(actors[i].a.string).strip()] = None
-
-        #self.Characters = []
-        #for character in characters:
-        #    self.Characters.append(str(character.div.string).strip())
 
     def __repr__(self):
-        return "<Movie('%s', '%s', '%s')>" % (self.ImdbLink, self.Title, self.ReleaseDate)
+        return "<Movie('%s', '%u', '%s')>" % (self.ImdbLink, self.Title, self.ReleaseDate)
