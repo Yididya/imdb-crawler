@@ -31,17 +31,18 @@ class Movie:
         self.Directors = []
 
         for director in directors:
-            self.Directors.append(str(director.find(itemprop='name').string))
+            self.Directors.append(unicode(director.find(itemprop='name').string))
 
 
-        actor_cast_pairs = soup.find(attrs={'class':'cast_list'}).find_all('tr')
+        actor_cast_pairs = filter(lambda pair: len(pair) > 1,soup.find(attrs={'class':'cast_list'}).find_all('tr'))
         
         self.Actors = map(lambda pair: {
-                                        'actor': str(pair.find(itemprop='actor').span.string.strip()), 
-                                        'character' : str(pair.find(attrs={'class':'character'}).get_text().strip())
+                                        'actor': unicode(pair.find(itemprop='actor').span.string.strip()), 
+                                        'character' : unicode(pair.find(attrs={'class':'character'}).get_text().split('/')[0].strip())
                                     }, 
                                     actor_cast_pairs[1:])
+        
 
 
     def __repr__(self):
-        return "<Movie('%s', '%s', '%s')>" % (self.ImdbLink, self.Title, self.ReleaseDate)
+        return "<Movie('%s', '%u', '%s')>" % (self.ImdbLink, self.Title, self.ReleaseDate)

@@ -22,13 +22,17 @@ def retrieveMovieList(url):
     print('Fetching individual movie data...\nThis might take a while. Go get your coffee!')
 
     movie_url_list = set(map(lambda movie: movie['href'], soup.table.find_all('a')))
-    p.map(retrieveAndSaveMovieData, movie_url_list)
+    map(retrieveAndSaveMovieData, movie_url_list)
     
-    p.close()
-    p.join() # Wait for the workers to die.
-    print('Voila!! It is all done now.')
+    # p.close()
+    # p.join() # Wait for the workers to die.
+    # print('Voila!! It is all done now.')
 
-
-repository = Repository()
-retrieveMovieList(URL_TOP_250)
-retrieveMovieList(URL_BOTTOM_100)
+if __name__ == '__main__':
+    try:
+        repository = Repository()
+        repository.createSchema()
+        retrieveMovieList(URL_TOP_250)
+        retrieveMovieList(URL_BOTTOM_100)
+    except IOError:
+        print("Please check your internet connection.")
