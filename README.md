@@ -15,7 +15,7 @@ Retrieves Top 250 and Bottom 100 movie lists and stores data into a MySQL databa
 `pip install -r requirement.txt`
 
 ## Setup Database Configuration
-Setup your database `USERNAME, PASSWORD and NAME' in `crawler/settings.py`
+Setup your database `USERNAME, PASSWORD and NAME` in crawler/settings.py`
 
 ## Running the crawler
 `cd imdb-crawler && python crawler/Crawler.py`
