@@ -15,14 +15,21 @@ class Movie:
         self.Rating = float(soup.find(itemprop="ratingValue").string.strip())
 
         dates = soup.find_all(name='meta', attrs={'itemprop': 'datePublished'})
+        
         try:
             if len(dates):
                 self.ReleaseDate = time.strptime(dates[0]['content'], '%Y-%m-%d')
             else:
                 self.ReleaseDate = None
         except ValueError:
-            self.ReleaseDate = None
-
+            self.ReleaseDate = time.strptime(dates[0]['content'], '%Y-%m-%d')
+            try:
+                self.ReleaseDate = time.strptime(dates[0]['content'], '%Y-%m')
+            except ValueError:
+                try:
+                    self.ReleaseDate = time.strptime(dates[0]['content'], '%Y')
+                except ValueError:
+                    self.ReleaseDate = None
 
         synopsis = soup.find(itemprop="description")
         self.Synopsis = re.sub(' +', ' ', synopsis.get_text().strip())
