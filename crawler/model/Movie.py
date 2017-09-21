@@ -22,7 +22,6 @@ class Movie:
             else:
                 self.ReleaseDate = None
         except ValueError:
-            self.ReleaseDate = time.strptime(dates[0]['content'], '%Y-%m-%d')
             try:
                 self.ReleaseDate = time.strptime(dates[0]['content'], '%Y-%m')
             except ValueError:
