@@ -68,7 +68,7 @@ class Movie:
         review_link_tag = soup.find('div', id='quicklinksMainSection').find_all('a')[2]
         if not 'quicklinkGray' in review_link_tag.get('class', []):
             soup = BeautifulSoup(self.fake_browser.open(ROOT_URL + review_link_tag['href']), 'html.parser')
-            reviews = map(lambda x: { 'title': x.get_text(), 'detail': x.parent.parent.find_next_sibling('p').get_text()} , soup.find(id='tn15content').find_all('h2'))
+            reviews = map(lambda x: { 'title': x.get_text(), 'detail': x.parent.find_next_sibling('p').get_text()} , soup.find_all('h2'))
 
         
         return reviews
