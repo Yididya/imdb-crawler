@@ -8,7 +8,7 @@ class Repository:
         """
 
         self.__showLog = showLog
-        self.__engine = create_engine('mysql+mysqlconnector://' + DATABASE['USER'] + ':' + DATABASE['PASSWORD'] + '@localhost:' + DATABASE['PORT'] + '/MovieDB', echo=self.__showLog)
+        self.__engine = create_engine('mysql+mysqlconnector://' + DATABASE['USER'] + ':' + DATABASE['PASSWORD'] + '@localhost:' + DATABASE['PORT'] + '/MovieDB?charset=utf8mb4', echo=self.__showLog)
         self.__metadata = MetaData()
 
         self.__persons = Table('Person', self.__metadata,
