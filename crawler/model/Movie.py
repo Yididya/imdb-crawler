@@ -1,9 +1,16 @@
 import time, re, urllib
 from bs4 import BeautifulSoup
+from crawler.settings import ROOT_URL
+
+class FakeBrowser(urllib.FancyURLopener):
+    version = 'Mozilla/5.0'
+
 
 class Movie:
     def __init__(self, imdbLink = None):
+        self.fake_browser = FakeBrowser()
         self.ImdbLink = imdbLink
+        self.Reviews = []
         self.parse(imdbLink)
 
     def parse(self, url):
@@ -48,7 +55,23 @@ class Movie:
                                     }, 
                                     actor_cast_pairs[1:])
         
+        try: 
+            self.Reviews = self.get_reviews(soup)
+        except Exception:
+            pass
+        
+    def get_reviews(self, soup):
+        """
+        Get reviews for the movie (Limited to only the first page of the review list: the most relevant ones)
+        """
+        reviews = []
+        review_link_tag = soup.find('div', id='quicklinksMainSection').find_all('a')[2]
+        if not 'quicklinkGray' in review_link_tag.get('class', []):
+            soup = BeautifulSoup(self.fake_browser.open(ROOT_URL + review_link_tag['href']), 'html.parser')
+            reviews = map(lambda x: { 'title': x.get_text(), 'detail': x.parent.parent.find_next_sibling('p').get_text()} , soup.find(id='tn15content').find_all('h2'))
 
+        
+        return reviews
 
     def __repr__(self):
-        return "<Movie('%s', '%u', '%s')>" % (self.ImdbLink, self.Title, self.ReleaseDate)
+        return "<Movie('%s', '%s', '%s')>" % (self.ImdbLink, self.Title, self.ReleaseDate)

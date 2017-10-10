@@ -3,6 +3,10 @@ from settings import DATABASE
 
 class Repository:
     def __init__(self, showLog = False):
+        """
+        Initialize database structure
+        """
+
         self.__showLog = showLog
         self.__engine = create_engine('mysql+mysqlconnector://' + DATABASE['USER'] + ':' + DATABASE['PASSWORD'] + '@localhost:' + DATABASE['PORT'] + '/MovieDB', echo=self.__showLog)
         self.__metadata = MetaData()
@@ -32,6 +36,13 @@ class Repository:
             Column('Id', Integer, primary_key = True),
             Column('Person_id', None, ForeignKey('Person.Id')),
             Column('Movie_id', None, ForeignKey('Movie.Id'))
+        )
+
+        self.__reviews = Table('Review', self.__metadata,
+            Column('id', Integer, primary_key=True),
+            Column('movie_id', None, ForeignKey('Person.Id')),
+            Column('review_title', Text, nullable=True),
+            Column('review_detail', Text, nullable=True),
         )
 
     def createSchema(self):
@@ -119,6 +130,9 @@ class Repository:
 
         for cast in movie.Actors:
             self.saveActor(movieId, cast['actor'], cast['character'])
+        
+        for review in movie.Reviews:
+            self.saveReview(movieId, review)
 
     # Director methods
     def saveDirector(self, movieId, directorName):
@@ -140,3 +154,13 @@ class Repository:
         )
 
         return result.inserted_primary_key[0]
+
+    def saveReview(self, movieId, review):
+        result = self.__engine.connect().execute(
+            self.__reviews.insert()
+            .values(movie_id=movieId, review_title=review['title'], review_detail=review['detail'])
+        )
+
+        return result.inserted_primary_key[0]
+
+    
