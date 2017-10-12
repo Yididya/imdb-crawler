@@ -1,4 +1,4 @@
-import urllib
+import urllib, re
 from bs4 import BeautifulSoup
 from multiprocessing import Pool
 
@@ -24,7 +24,7 @@ def retrieveMovieList(url):
     print('Fetching individual movie data...\nThis might take a while. Go get your coffee!')
 
     movie_url_list = set(
-        map(lambda movie: movie['href'], soup.table.find_all('a')))
+        map(lambda movie: re.sub('\?(.*)', '', movie['href']), soup.table.find_all('a')))
     map(retrieveAndSaveMovieData, movie_url_list)
 
     # p.close()
