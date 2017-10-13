@@ -11,31 +11,45 @@ class Repository:
         self.__engine = create_engine('mysql+pymysql://' + DATABASE['USER'] + ':' + DATABASE['PASSWORD'] + '@localhost:' + DATABASE['PORT'] + '/MovieDB?charset=utf8mb4', echo=self.__showLog)
         self.__metadata = MetaData()
 
-        self.__persons = Table('Person', self.__metadata,
-            Column('Id', Integer, primary_key = True),
-            Column('Name', String(255), nullable = False, unique = True)
+        self.__persons = Table('person', self.__metadata,
+            Column('id', Integer, primary_key = True),
+            Column('name', String(255), nullable = False, unique = True)
         )
 
-        self.__movies = Table('Movie', self.__metadata,
-            Column('Id', Integer, primary_key = True),
-            Column('Title', String(255), nullable = False, unique = True),
-            Column('ImdbLink', String(255), nullable = False, unique = True),
-            Column('ReleaseDate', Date, nullable = True),
-            Column('Rating', Float, nullable = True),
-            Column('Synopsis', Text, nullable = True)
+        self.__movies = Table('movie', self.__metadata,
+            Column('id', Integer, primary_key = True),
+            Column('title', String(255), nullable = False, unique = True),
+            Column('imdb_link', String(255), nullable = False, unique = True),
+            Column('release_date', Date, nullable = True),
+            Column('rating', Float, nullable = True),
+            Column('synopsis', Text, nullable = True),
+            Column('running_time', String(10), nullable=False, unique=True),
+            Column('budget', String(10), nullable=False, unique=True),
+            Column('gross_usa', String(20), nullable=False, unique=True),
+            Column('gross_worldwide', String(20), nullable=False, unique=True),
+            Column('genre', String(50), nullable=False, unique=True)
         )
-
-        self.__actors = Table('Actor', self.__metadata,
-            Column('Id', Integer, primary_key = True),
-            Column('Person_id', None, ForeignKey('Person.Id')),
-            Column('Movie_id', None, ForeignKey('Movie.Id')),
-            Column('CharacterName', String(255), nullable = True)
+        self.__actors = Table('Actor', self.__metadata, 
+            Column('id', Integer, primary_key = True),
+            Column('person_id', Integer, primary_key = True),
+            Column('full_name', String(255), nullable=False),
+            Column('short_bio', Text, nullable=False),
+            Column('birth_date', Date, nullable=True),
+            Column('birth_place', String(255), nullable=True),
+            Column('known_for', String(300), nullable=True),
+            Column('height', Float, nullable=True)
+        )
+        self.__actor_characters = Table('Actor', self.__metadata,
+            Column('id', Integer, primary_key = True),
+            Column('person_id', None, ForeignKey('Person.Id')),
+            Column('movie_id', None, ForeignKey('Movie.Id')),
+            Column('character_name', String(255), nullable = True)
         )
 
         self.__directors = Table('Director', self.__metadata,
-            Column('Id', Integer, primary_key = True),
-            Column('Person_id', None, ForeignKey('Person.Id')),
-            Column('Movie_id', None, ForeignKey('Movie.Id'))
+            Column('id', Integer, primary_key = True),
+            Column('person_id', None, ForeignKey('Person.Id')),
+            Column('movie_id', None, ForeignKey('Movie.Id'))
         )
 
         self.__reviews = Table('Review', self.__metadata,

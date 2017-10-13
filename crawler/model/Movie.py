@@ -65,6 +65,11 @@ class Movie:
         except Exception:
             pass
         
+        self.gross_usa, self.gross_worldwide = self.get_gross_income()
+        self.budget = self.get_budget()
+        self.running_time = self.get_running_time()
+        self.genre = self.get_genre()
+
     def get_reviews(self):
         """
         Get reviews for the movie (Limited to only the first page of the review list: the most relevant ones)
