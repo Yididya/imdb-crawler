@@ -56,7 +56,7 @@ class Movie:
         
         self.Actors = map(lambda pair: {
                                         'actor': unicode(pair.find(itemprop='actor').span.string.strip()), 
-                                        'character' : unicode(pair.find(attrs={'class':'character'}).get_text().split('/')[0].strip())
+                                        'character' : unicode(re.sub('\s+', ' ', pair.find(attrs={'class':'character'}).get_text().split('/')[0].strip()))
                                     }, 
                                     actor_cast_pairs[1:])
         
