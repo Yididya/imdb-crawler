@@ -34,8 +34,8 @@ def retrieve_movie_list(retry_index=0):
     p.map(retrieve_and_save_movie, movie_url_list[retry_index:])
 
 
-    p.close()
-    p.join() # Wait for the workers to die.
+    # p.close()
+    # p.join() # Wait for the workers to die.
     print('Voila!! It is all done now.')
 
 
